@@ -1,0 +1,14 @@
+# Entornos virtuales y caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs y temporales
+*.log
