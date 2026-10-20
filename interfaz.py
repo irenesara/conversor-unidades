@@ -17,6 +17,8 @@ COLOR_ACENTO = "#6C63FF"
 COLOR_ACENTO_HOVER = "#8B85FF"
 COLOR_ERROR = "#FF6B6B"
 FUENTE_FAMILIA = "Segoe UI"
+TAM_FUENTE_RESULTADO = 32
+TAM_FUENTE_AVISO = 18
 
 
 class App(ctk.CTk):
@@ -32,6 +34,12 @@ class App(ctk.CTk):
         self.historial: list[dict[str, Any]] = []
         self.ultimo_resultado_copia: str = ""
         self._timer_copiado: Optional[str] = None
+        self.fuente_resultado = ctk.CTkFont(
+            family=FUENTE_FAMILIA, size=TAM_FUENTE_RESULTADO, weight="bold"
+        )
+        self.fuente_aviso = ctk.CTkFont(
+            family=FUENTE_FAMILIA, size=TAM_FUENTE_AVISO
+        )
 
         self._crear_estructura()
         self._configurar_atajos()
@@ -289,7 +297,7 @@ class App(ctk.CTk):
         self.lbl_resultado_grande = ctk.CTkLabel(
             self.tarjeta_resultado,
             text="1.000 mm",
-            font=ctk.CTkFont(family=FUENTE_FAMILIA, size=32, weight="bold"),
+            font=self.fuente_resultado,
             anchor="w",
         )
         self.lbl_resultado_grande.grid(row=0, column=0, padx=25, pady=(20, 5), sticky="w")
@@ -467,7 +475,9 @@ class App(ctk.CTk):
     def _mostrar_aviso(self, mensaje: str) -> None:
         """Muestra un mensaje informativo tenue mientras se escribe."""
         self.lbl_resultado_grande.configure(
-            text=mensaje, text_color=("gray50", "gray60")
+            text=mensaje,
+            text_color=("gray50", "gray60"),
+            font=self.fuente_aviso,
         )
         self.lbl_resultado_detalle.configure(text="")
         self.btn_copiar.configure(state="disabled")
@@ -494,6 +504,7 @@ class App(ctk.CTk):
         self.lbl_resultado_grande.configure(
             text=f"{formato_res} {destino}",
             text_color=color_texto,
+            font=self.fuente_resultado,
         )
         self.lbl_resultado_detalle.configure(
             text=f"{formato_val} {nombre_origen} =\n{formato_res} {nombre_destino}",

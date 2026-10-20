@@ -66,5 +66,31 @@ class TestValidacionEntrada(unittest.TestCase):
                 )
 
 
+    def test_tamano_letra_aviso_y_resultado(self) -> None:
+        """Comprueba que el aviso use tamaño de letra reducido y el resultado mantenga tamaño 32."""
+        # 1. Al vaciar el campo de valor, se muestra el aviso con tamaño menor a 32
+        self.app.entrada_valor.delete(0, "end")
+        self.app.calcular()
+        fuente_aviso = self.app.lbl_resultado_grande.cget("font")
+        tam_aviso = (
+            fuente_aviso.cget("size")
+            if hasattr(fuente_aviso, "cget")
+            else getattr(fuente_aviso, "_size", fuente_aviso[1] if isinstance(fuente_aviso, (tuple, list)) else 18)
+        )
+        self.assertLess(tam_aviso, 32, "El tamaño de letra del aviso debe ser menor que 32.")
+        self.assertIn("Introduce un valor", self.app.lbl_resultado_grande.cget("text"))
+
+        # 2. Al escribir un resultado numérico, debe mantener el tamaño actual (32)
+        self.app.entrada_valor.insert(0, "100")
+        self.app.calcular()
+        fuente_res = self.app.lbl_resultado_grande.cget("font")
+        tam_res = (
+            fuente_res.cget("size")
+            if hasattr(fuente_res, "cget")
+            else getattr(fuente_res, "_size", fuente_res[1] if isinstance(fuente_res, (tuple, list)) else 32)
+        )
+        self.assertEqual(tam_res, 32, "El resultado numérico debe mantener tamaño de letra 32.")
+
+
 if __name__ == "__main__":
     unittest.main()
