@@ -167,12 +167,15 @@ class App(ctk.CTk):
         )
         etiq_valor.grid(row=0, column=0, padx=(0, 10), sticky="w")
 
+        vcmd = (self.register(self._validar_numero), "%P")
         self.entrada_valor = ctk.CTkEntry(
             frame_valor,
             height=42,
             corner_radius=12,
             font=ctk.CTkFont(family=FUENTE_FAMILIA, size=16),
             placeholder_text="Escribe un número (ej. 100)",
+            validate="key",
+            validatecommand=vcmd,
         )
         self.entrada_valor.insert(0, "100")
         self.entrada_valor.grid(row=0, column=1, sticky="ew", padx=(0, 10))
@@ -191,6 +194,30 @@ class App(ctk.CTk):
             font=ctk.CTkFont(family=FUENTE_FAMILIA, size=13),
         )
         self.btn_guardar.grid(row=0, column=2, sticky="e")
+
+    def _validar_numero(self, texto: str) -> bool:
+        """Valida que la casilla solo acepte caracteres numéricos válidos."""
+        if texto in ("", "-", ".", ",", "-.", "-,"):
+            return True
+
+        if texto.count("-") > 1 or ("-" in texto and not texto.startswith("-")):
+            return False
+
+        if texto.count(".") + texto.count(",") > 1:
+            return False
+
+        t = texto.replace(",", ".")
+        if t.endswith("."):
+            t = t[:-1]
+
+        if t in ("", "-"):
+            return True
+
+        try:
+            float(t)
+            return True
+        except ValueError:
+            return False
 
     def _crear_fila_selectores(self) -> None:
         """Crea los menús desplegables de origen y destino con el botón de intercambio."""
@@ -418,8 +445,8 @@ class App(ctk.CTk):
     def calcular(self) -> None:
         """Ejecuta la conversión en tiempo real y actualiza la tarjeta de resultado."""
         texto_valor = self.entrada_valor.get().strip()
-        if not texto_valor:
-            self._mostrar_error("⚠️ Introduce un número válido")
+        if not texto_valor or texto_valor in ("-", ".", ",", "-.", "-,"):
+            self._mostrar_aviso("Introduce un valor...")
             return
 
         try:
@@ -436,6 +463,15 @@ class App(ctk.CTk):
             self._mostrar_exito(valor, sim_origen, sim_destino, resultado)
         except ValueError as err:
             self._mostrar_error(f"⚠️ {str(err)}")
+
+    def _mostrar_aviso(self, mensaje: str) -> None:
+        """Muestra un mensaje informativo tenue mientras se escribe."""
+        self.lbl_resultado_grande.configure(
+            text=mensaje, text_color=("gray50", "gray60")
+        )
+        self.lbl_resultado_detalle.configure(text="")
+        self.btn_copiar.configure(state="disabled")
+        self.ultimo_resultado_copia = ""
 
     def _mostrar_error(self, mensaje: str) -> None:
         """Muestra un mensaje de error amable en la tarjeta de resultado."""
